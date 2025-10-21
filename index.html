@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch & Tanggal Real-time</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .datetime-container {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .date {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .time {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .stopwatch-container {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .stopwatch-display {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-start {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-pause {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background-color: #d35400;
+        }
+
+        .btn-reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-lap {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-lap:hover {
+            background-color: #2980b9;
+        }
+
+        .laps-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .laps-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lap-number {
+            font-weight: 600;
+        }
+
+        .lap-time {
+            font-family: 'Courier New', monospace;
+        }
+
+        .lap-item:last-child {
+            border-bottom: none;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .time {
+                font-size: 2.5rem;
+            }
+            
+            .stopwatch-display {
+                font-size: 3rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .time {
+                font-size: 2rem;
+            }
+            
+            .stopwatch-display {
+                font-size: 2.5rem;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-stopwatch"></i> Stopwatch & Waktu</h1>
+        
+        <div class="datetime-container">
+            <div class="date" id="date">Senin, 1 Januari 2024</div>
+            <div class="time" id="time">00:00:00</div>
+        </div>
+        
+        <div class="stopwatch-container">
+            <div class="stopwatch-display" id="stopwatch">00:00:00.00</div>
+            
+            <div class="controls">
+                <button class="btn btn-start" id="startBtn">
+                    <i class="fas fa-play"></i> Mulai
+                </button>
+                <button class="btn btn-pause" id="pauseBtn">
+                    <i class="fas fa-pause"></i> Jeda
+                </button>
+                <button class="btn btn-reset" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                <button class="btn btn-lap" id="lapBtn">
+                    <i class="fas fa-flag"></i> Lap
+                </button>
+            </div>
+            
+            <div class="laps-container" id="lapsContainer">
+                <div class="laps-title">Catatan Lap</div>
+                <div id="lapsList"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Dibuat dengan <i class="fas fa-heart" style="color: #e74c3c;"></i> menggunakan JavaScript
+        </div>
+    </div>
+
+    <script>
+        // Elemen DOM
+        const dateElement = document.getElementById('date');
+        const timeElement = document.getElementById('time');
+        const stopwatchElement = document.getElementById('stopwatch');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const lapsList = document.getElementById('lapsList');
+        
+        // Variabel stopwatch
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval = null;
+        let isRunning = false;
+        let lapCount = 0;
+        
+        // Fungsi untuk memperbarui tanggal dan waktu
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format tanggal
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const dateString = now.toLocaleDateString('id-ID', options);
+            dateElement.textContent = dateString;
+            
+            // Format waktu
+            const timeString = now.toLocaleTimeString('id-ID');
+            timeElement.textContent = timeString;
+        }
+        
+        // Fungsi untuk memformat waktu stopwatch
+        function formatTime(time) {
+            const hours = Math.floor(time / 3600000);
+            const minutes = Math.floor((time % 3600000) / 60000);
+            const seconds = Math.floor((time % 60000) / 1000);
+            const milliseconds = Math.floor((time % 1000) / 10);
+            
+            return (
+                (hours ? String(hours).padStart(2, '0') + ':' : '') +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0') + '.' +
+                String(milliseconds).padStart(2, '0')
+            );
+        }
+        
+        // Fungsi untuk memulai stopwatch
+        function startStopwatch() {
+            if (!isRunning) {
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    stopwatchElement.textContent = formatTime(elapsedTime);
+                }, 10);
+                isRunning = true;
+                
+                // Update tombol
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                lapBtn.disabled = false;
+            }
+        }
+        
+        // Fungsi untuk menjeda stopwatch
+        function pauseStopwatch() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                
+                // Update tombol
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+            }
+        }
+        
+        // Fungsi untuk mereset stopwatch
+        function resetStopwatch() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            elapsedTime = 0;
+            stopwatchElement.textContent = '00:00:00.00';
+            lapCount = 0;
+            lapsList.innerHTML = '';
+            
+            // Update tombol
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            lapBtn.disabled = true;
+        }
+        
+        // Fungsi untuk mencatat lap
+        function recordLap() {
+            if (isRunning) {
+                lapCount++;
+                const lapTime = formatTime(elapsedTime);
+                
+                const lapItem = document.createElement('div');
+                lapItem.className = 'lap-item';
+                lapItem.innerHTML = `
+                    <span class="lap-number">Lap ${lapCount}</span>
+                    <span class="lap-time">${lapTime}</span>
+                `;
+                
+                lapsList.prepend(lapItem);
+                
+                // Scroll ke atas daftar lap
+                lapsList.parentElement.scrollTop = 0;
+            }
+        }
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startStopwatch);
+        pauseBtn.addEventListener('click', pauseStopwatch);
+        resetBtn.addEventListener('click', resetStopwatch);
+        lapBtn.addEventListener('click', recordLap);
+        
+        // Nonaktifkan tombol pause dan lap pada awalnya
+        pauseBtn.disabled = true;
+        lapBtn.disabled = true;
+        
+        // Perbarui tanggal dan waktu setiap detik
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Tambahkan efek visual saat tombol diklik
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'translateY(2px)';
+                button.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
+            });
+            
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)';
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)';
+            });
+        });
+    </script>
+</body>
+</html>
